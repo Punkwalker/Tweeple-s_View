@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Main Page</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+          google.charts.load("current", {packages:["corechart"]});
+          google.charts.setOnLoadCallback(drawChart);
+           
+
+          function drawChart() {
+            var positive = '<%- positive %>';
+            var negative = '<%- negative %>'; 
+            var nuetral = '<%- nuetral %>';
+            var data = google.visualization.arrayToDataTable([
+            ['Classification', 'Count'],
+            ['Positive Tweets', Number(positive)],
+            ['Negative Tweets', Number(negative)],
+            ['Nuetral Tweets',  Number(nuetral)]
+            ]);
+            // /(positive+negative+nuetral)
+            var options = {
+              title: 'Sentiment of Tweets',
+              is3D: true,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('my_chart'));
+            chart.draw(data, options);
+          }
+        </script>
+  </head>
+  <body style="background-color:rgb(93,169,221);color:white;">
+    <!-- <a href="about.html" style="float:right;font-size:20px;text-shadow:0px 0px 2px white;color:white;text-decoration:none">What we do?</a> -->
+    <br/><br/><br/><br/><br/>
+    <center style="font-family:Baskerville Old Face;">
+      <fieldset style="border:2px solid white;width:50%;border-radius:10px">
+      <h1 style="font-size:55px">Tweeple's View</h1><br/>
+      <h1>Ever wish you could read minds?</h1>
+      <form action="/"method="post">
+          <input name = "topic" type="text" style="outline:none;font-size:20px;padding-left:20px;height:40px;width:350px;border:3px solid navy;border-radius:40px!important;box-shadow:0px 0px 3px navy" required>
+          <input type="submit" value="&#128269;" style="margin-left:0px;background-color:rgb(93,169,221);border:none;font-size:30px;width:50px">
+          <br/><br/><b style="font-size:20px">(What do other people think?)</b>
+          <br/><br/>
+      </form>
+      
+      <% if(error !== null){ %>
+        <p><%= error %></p>
+      <% } %>
+      <br/>
+      <% if(doneBQ !== null){ %>
+        <div id="my_chart" style="width: 800px; height: 600px;"></div>
+      <% } %>    
+      </fieldset>
+      
+    </center>
+  </body>
+</html>
