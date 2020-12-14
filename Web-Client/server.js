@@ -1,20 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
-const app = express()
+const app = express();
 const {PubSub} = require('@google-cloud/pubsub');
 const {BigQuery} = require('@google-cloud/bigquery');
 
-const {v1:uuidv1} = require('uuid')
+const {v1:uuidv1} = require('uuid');
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
 
 app.get('/', function (req, res) {
   res.render('index',{error:null,doneBQ:null,positive:null,nuetral:null,negative:null,topic:null});
   res.end();
-})
+});
 
 //process.env.GOOGLE_APPLICATION_CREDENTIALS = "tweeple-sentiment-ac73f4e6b7b4.json";
 
