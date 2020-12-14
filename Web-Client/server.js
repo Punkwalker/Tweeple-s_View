@@ -12,11 +12,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs')
 
 app.get('/', function (req, res) {
-  res.render('index2',{error:null,doneBQ:null,positive:null,nuetral:null,negative:null,topic:null});
+  res.render('index',{error:null,doneBQ:null,positive:null,nuetral:null,negative:null,topic:null});
   res.end();
 })
 
-process.env.GOOGLE_APPLICATION_CREDENTIALS = "tweeple-sentiment-ac73f4e6b7b4.json";
+//process.env.GOOGLE_APPLICATION_CREDENTIALS = "tweeple-sentiment-ac73f4e6b7b4.json";
 
 async function publishMessage(topic,requestId) {
   const publisher1 = new PubSub();    //publisher client for get-topic
@@ -185,10 +185,10 @@ app.post('/',  async function (req, res) {
   console.log(`Waiting for 3rd Query to Finish`);
   console.log(negative);
   console.log(`Done Querying BQ Data`);
-  res.render('index2',{error:null,doneBQ:1,positive:positive,nuetral:nuetral,negative:negative,topic:topic});
+  res.render('index',{error:null,doneBQ:1,positive:positive,nuetral:nuetral,negative:negative,topic:topic});
   res.end();
 })
 
-app.listen(3000, function () {
-  console.log('Tweeple\'s View app listening on port 3000!')
+app.listen(8080, function () {
+  console.log('Tweeple\'s View app listening on port 8080!')
 })
