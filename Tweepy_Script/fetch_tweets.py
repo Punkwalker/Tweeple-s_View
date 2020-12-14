@@ -8,6 +8,7 @@ import re
 from google.cloud import language
 from google.cloud import pubsub_v1
 from threading import Thread
+import  time
 
 
 # Project Variables Configuration---------------------
@@ -30,6 +31,7 @@ topic_path2 = publisher2.topic_path(project_id, topic_id2)
 
 #Global Variable for Tweet Topic-------------------
 tweettopic = ''
+requestId = 0
 
 #Twepy Authentication Method------------------
 def tweepyauth():
@@ -67,12 +69,13 @@ def get_score(tweet):
 class tweetWorker(Thread):
     def run(self):
         print(f"Searching tweets for {tweettopic}....")
+        print(f"Request ID: {requestId}")
         api = tweepyauth()
 
         try:
             # Get Tweets
             get_tweets = tweepy.Cursor(api.search, q=tweettopic, result_type='recent', lang='en',
-                                       tweet_mode='extended').items(1)
+                                       tweet_mode='extended').items(1000)
             for tweet in get_tweets:
                 # Clean tweets
                 clean_tweet = format_tweets(tweet.full_text.encode('UTF-8'))
@@ -80,15 +83,17 @@ class tweetWorker(Thread):
                 clean_tweet = str(clean_tweet)
                 sentiment_score = get_score(clean_tweet)
                 sentiment_score = str(sentiment_score)
-                data = "{"+"\"tweet\"" + ":" + "\"" + clean_tweet + "\"" + "," + "\"score\"" + ":\"" + sentiment_score+ "\""+"}"
+                data = "{"+"\"tweet\"" + ":" + "\"" + clean_tweet + "\"" + "," + "\"score\"" + ":\"" + sentiment_score+ "\""+\
+                       ","+"\"id\"" + ":\""+requestId+"\""+"}"
 
                 print(data)
                 data = data.encode('utf-8')
-                # future = publisher1.publish(topic_path1,data)         #Publish Tweet to results Topic
+                future = publisher1.publish(topic_path1,data)         #Publish Tweet to results Topic
 
             print("Sent Tweets and Score to Pubsub!!!")
-            done = "1"
-            future = publisher2.publish(topic_path2, done.encode('UTF-8'))
+            done = "done"
+            time.sleep(2)                              #wait 10s after results are send to BQ
+            future = publisher2.publish(topic_path2, done.encode('UTF-8'))    #send message to node for done-bq
 
         except tweepy.error.TweepError:
             print("*****Error in fetching the Tweets******")
@@ -96,10 +101,12 @@ class tweetWorker(Thread):
 #Method to listen for message on gettopicsub subscription to start the worker Thread------------------
 def listen_topic():
     def callback(message):
-        message.ack()
         global tweettopic
+        global requestId
+        message.ack()
         tweettopic = str(message.data)
         tweettopic = (tweettopic.lstrip('b').strip('\'') + ' -filter:retweets')
+        requestId = message.attributes.get('id')
         t = tweetWorker()
         t.start()
 
